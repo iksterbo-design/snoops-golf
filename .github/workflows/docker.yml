@@ -52,13 +52,39 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Smoke test the image
+      # Pull the exact tag metadata-action pushed (type=sha -> sha-<short-sha>).
+      - name: Smoke test the pushed image
+        if: github.event_name != 'pull_request'
         run: |
-          docker run -d --rm --name agc -p 3100:3000 ${{ env.IMAGE }}:sha-${{ github.sha }}
+          TAG="sha-$(printf '%s' "${{ github.sha }}" | cut -c1-7)"
+          IMAGE="${{ env.IMAGE }}:${TAG}"
+          echo "smoke-testing ${IMAGE}"
+          docker pull "${IMAGE}"
+          docker run -d --rm --name agc -p 3100:3000 "${IMAGE}"
           for i in $(seq 1 30); do
             if curl -sf http://127.0.0.1:3100/api/health >/dev/null; then break; fi
             sleep 2
           done
           curl -s http://127.0.0.1:3100/api/health
+          echo
           curl -sf -o /dev/null http://127.0.0.1:3100/manifest.webmanifest && echo "manifest OK"
           docker stop agc
+
+      # On pull requests nothing is pushed, so build natively and test that.
+      - name: Smoke test a local build
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_DEMO_MODE=true \
+            --build-arg INSTALL_FFMPEG=true \
+            -t snoops-golf:smoke .
+          docker run -d --rm --name agc -p 3100:3000 snoops-golf:smoke
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3100/api/health >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -s http://127.0.0.1:3100/api/health
+          echo
+          curl -sf -o /dev/null http://127.0.0.1:3100/manifest.webmanifest && echo "manifest OK"
+          docker stop agc
+
