@@ -7,7 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup": "node scripts/setup-env.mjs",
+    "docker:build": "docker build -t snoops-golf .",
+    "docker:build:ffmpeg": "docker build --build-arg INSTALL_FFMPEG=true -t snoops-golf .",
+    "docker:buildx": "docker buildx build --platform linux/amd64,linux/arm64 -t snoops-golf .",
+    "docker:run": "docker compose up --build"
+  },
+  "engines": {
+    "node": ">=18.17.0"
   },
   "dependencies": {
     "next": "14.2.15",

@@ -1,28 +1,73 @@
-name: CI
+name: CI (all platforms)
 
 on:
   push:
     branches: [main]
   pull_request:
 
+# One workflow, three operating systems: proves the app builds identically on
+# Linux, Windows and macOS (the container targets are covered by `docker.yml`).
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} / node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [20]
+        include:
+          # Also prove the newest supported LTS still compiles.
+          - os: ubuntu-latest
+            node: 22
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      # Cross-platform env bootstrap: works on cmd.exe / PowerShell / sh alike.
+      - name: Bootstrap env file
+        run: npm run setup
+
       - name: Typecheck
-        run: npx tsc --noEmit -p tsconfig.json
+        run: npm run typecheck
 
       - name: Production build
         run: npm run build
         env:
           NEXT_PUBLIC_DEMO_MODE: "true"
+
+      # The standalone bundle is what the container images ship.
+      - name: Assert standalone output
+        shell: bash
+        run: |
+          test -f .next/standalone/server.js || { echo "missing .next/standalone/server.js"; exit 1; }
+          test -d .next/standalone/.next/server || { echo "missing .next/standalone/.next/server"; exit 1; }
+
+      # PWA assets must exist on every platform — the installable app is the
+      # mobile/desktop distribution story.
+      - name: Assert PWA assets
+        shell: bash
+        run: |
+          for f in public/sw.js public/offline.html public/robots.txt \
+                   public/icons/icon-192.png public/icons/icon-512.png \
+                   public/icons/icon-512-maskable.png \
+                   src/app/manifest.ts src/app/icon.png src/app/icon.svg \
+                   src/app/apple-icon.png src/components/PwaRegister.tsx; do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
+
+      - name: Assert container build inputs
+        shell: bash
+        run: |
+          for f in Dockerfile docker-compose.yml .dockerignore .github/workflows/docker.yml; do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
+

@@ -12,6 +12,7 @@ const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
 const FFPROBE = process.env.FFPROBE_PATH || "ffprobe";
 
 let availableCache: boolean | null = null;
+let ffprobeCache: boolean | null = null;
 
 /** True when an ffmpeg binary is reachable. Cached for the process lifetime. */
 export async function ffmpegAvailable(): Promise<boolean> {
@@ -23,6 +24,18 @@ export async function ffmpegAvailable(): Promise<boolean> {
     availableCache = false;
   }
   return availableCache;
+}
+
+/** True when an ffprobe binary is reachable. Cached for the process lifetime. */
+export async function ffprobeAvailable(): Promise<boolean> {
+  if (ffprobeCache !== null) return ffprobeCache;
+  try {
+    await execFileAsync(FFPROBE, ["-version"], { timeout: 8000 });
+    ffprobeCache = true;
+  } catch {
+    ffprobeCache = false;
+  }
+  return ffprobeCache;
 }
 
 /**
@@ -125,13 +138,6 @@ export async function attachCheckpointFrames(swing: Swing, analysis: Analysis): 
 
 /** Used by the demo seed / admin tooling to build a contact sheet (optional). */
 export async function hasMediaTooling(): Promise<{ ffmpeg: boolean; ffprobe: boolean }> {
-  const ffmpeg = await ffmpegAvailable();
-  let ffprobe = false;
-  try {
-    await execFileAsync(FFPROBE, ["-version"], { timeout: 8000 });
-    ffprobe = true;
-  } catch {
-    ffprobe = false;
-  }
+  const [ffmpeg, ffprobe] = await Promise.all([ffmpegAvailable(), ffprobeAvailable()]);
   return { ffmpeg, ffprobe };
 }

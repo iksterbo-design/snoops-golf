@@ -12,9 +12,10 @@ Built with **Next.js 14 (App Router) + TypeScript + Tailwind CSS**. Runs end-to-
 ## 1. Quick start (demo mode — no keys needed)
 
 ```bash
-cd ai-golf-coach
+git clone https://github.com/iksterbo-design/snoops-golf.git
+cd snoops-golf
 npm install
-cp .env.example .env.local   # already pre-filled for demo; Windows: copy .env.example .env.local
+npm run setup               # cross-platform: creates .env.local (no `cp` needed)
 npm run dev
 ```
 
@@ -59,7 +60,49 @@ Never commit real credentials; `.env.local` is gitignored.
 
 ---
 
-## 3. Architecture
+## 3. Run anywhere (Windows / macOS / Linux / Docker / PWA)
+
+```bash
+npm run setup          # creates .env.local on any OS (no `cp` needed)
+npm run dev            # http://localhost:3000
+```
+
+### Supported platforms
+
+| Platform | How | Status |
+|---|---|---|
+| Windows 10/11 | `npm run dev` / `npm start` | ✅ CI-tested (`windows-latest`) |
+| macOS (Intel + Apple Silicon) | `npm run dev` / `npm start` | ✅ CI-tested (`macos-latest`) |
+| Linux (x64, arm64) | `npm run dev` / `npm start` | ✅ CI-tested (`ubuntu-latest`) |
+| Docker (linux/amd64 + linux/arm64) | `npm run docker:build` / `docker:buildx` | ✅ multi-arch image |
+| Vercel / Fly / Railway / Render | Dockerfile or Node build | ✅ zero-config |
+| iOS / Android (installable) | PWA — "Add to Home Screen" | ✅ manifest + service worker |
+| Desktop Chrome/Edge install | PWA — "Install app" | ✅ standalone display mode |
+
+Node **18.17+** is required (see `engines` in `package.json`). CI runs the
+typecheck + production build on every push across all three desktop OSes.
+
+**Container / other platforms**
+
+```bash
+npm run docker:build              # single-arch image
+npm run docker:build:ffmpeg       # + ffmpeg/ffprobe inside the image
+npm run docker:buildx             # linux/amd64 + linux/arm64
+npm run docker:run                # docker compose up --build
+```
+
+`GET /api/health` is the container health check and reports whether media
+tooling is present. Full matrix of deploy targets (Vercel, VPS, Fly, Railway,
+Render) is in **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+
+**Installable app (PWA)**
+`/manifest.webmanifest` + service worker are built in: "Add to Home Screen" on
+iOS/Android, "Install" in Chrome/Edge. Offline visits show a branded offline
+page; API calls are never cached, so reviews and payments always stay live.
+
+---
+
+## 4. Architecture
 
 ```
 src/
@@ -125,7 +168,7 @@ writes the summary in that coach's voice. Same swing, four genuinely different r
 
 ---
 
-## 4. Scripts
+## 5. Scripts
 
 ```bash
 npm run dev        # dev server on :3000
@@ -134,7 +177,7 @@ npm run start      # serve production build
 npm run typecheck  # tsc --noEmit
 ```
 
-## 5. Demo-mode honesty
+## 6. Demo-mode honesty
 
 Every demo artifact is marked: reviews carry a disclaimer badge ("Demo analysis — simulated"),
 payments are labeled simulated, uploads are local. Nothing claims to be genuine video analysis

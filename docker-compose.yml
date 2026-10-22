@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_DEMO_MODE: "true"
+        # set to "true" to enable ffmpeg duration probe + checkpoint frames
+        INSTALL_FFMPEG: "false"
+    image: snoops-golf:latest
+    container_name: ai-golf-coach
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_DEMO_MODE: "true"
+      # Public origin used for absolute metadata/OG URLs. Change per environment.
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      APP_SECRET: "change-me-in-production"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "change-me-now"
+      STORAGE_DRIVER: "local"
+    volumes:
+      - app-data:/app/data
+      - app-uploads:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  app-data:
+  app-uploads:
