@@ -32,22 +32,28 @@ export function generateMockAnalysis(swing: Swing, coach: CoachProfile): Analysi
     .sort((a, b) => b.s - a.s);
   const drills: Drill[] = scored.slice(0, 3).map(x => x.d);
 
-  // --- observations with video checkpoints
-  const checkpoints = [
-    { t: "0:00", label: "Address" }, { t: "0:03", label: "Takeaway" },
-    { t: "0:06", label: "Top of backswing" }, { t: "0:09", label: "Transition" },
-    { t: "0:12", label: "Impact" }, { t: "0:15", label: "Release" }, { t: "0:18", label: "Finish" },
+  // --- observations with video checkpoints (scaled to the real video length)
+  const dur = Math.max(3, Math.round(swing.durationSec || 18));
+  const checkpointPlan: [number, string][] = [
+    [0.00, "Address"], [0.17, "Takeaway"], [0.35, "Top of backswing"], [0.52, "Transition"],
+    [0.68, "Impact"], [0.83, "Release"], [0.97, "Finish"],
   ];
+  const fmt = (sec: number) => {
+    const s = Math.max(0, Math.min(dur, Math.round(sec)));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  };
+  const checkpoints = checkpointPlan.map(([p, label]) => ({ t: fmt(p * dur), label }));
   const obsSpecs: { title: string; detail: string; severity: Observation["severity"] }[] = [
-    { title: `Contact pattern on the ${swing.input.club.toLowerCase()}`, detail: `Strike was ${base.contact >= 75 ? "centered with a shallow, downward blow" : "tending toward the toe with a slightly descending path"} at impact (checkpoint 0:12).`, severity: base.contact >= 75 ? "good" : "attention" },
+    { title: `Contact pattern on the ${swing.input.club.toLowerCase()}`, detail: `Strike was ${base.contact >= 75 ? "centered with a shallow, downward blow" : "tending toward the toe with a slightly descending path"} at impact (checkpoint {{CP}}).`, severity: base.contact >= 75 ? "good" : "attention" },
     { title: "Tempo through transition", detail: base.tempo >= 75 ? "Backswing to downswing transition showed a smooth ~3:1 rhythm." : "Transition showed a slight rush from the top; the downswing started before the backswing fully loaded.", severity: base.tempo >= 75 ? "good" : "attention" },
-    { title: "Setup priorities at address", detail: `Setup at 0:00 aligned with ${coach.name.split(" ")[0]}'s priorities: ${coach.observationFocus.slice(0, 3).join(", ")}.`, severity: "good" },
+    { title: "Setup priorities at address", detail: `Setup at {{CP}} aligned with ${coach.name.split(" ")[0]}'s priorities: ${coach.observationFocus.slice(0, 3).join(", ")}.`, severity: "good" },
     { title: "Sequencing into and through impact", detail: base.sequencing >= 75 ? "Hips led the downswing with the arms following — the correct ground-up order." : "Arms appeared to out-run the body at the start of the downswing, costing both speed and consistency.", severity: base.sequencing >= 75 ? "good" : "priority" },
     { title: `Distance output for the ${swing.input.club.toLowerCase()}`, detail: base.distance >= 75 ? "Carry distance looked playable for scoring; no meaningful speed leak detected." : "Distance was limited by strike location and sequencing rather than by effort.", severity: base.distance >= 75 ? "good" : "attention" },
   ];
-  const observations: Observation[] = obsSpecs.map((o, i) => ({
-    ...o, checkpoint: checkpoints[(i * 2 + Math.floor(r() * 2)) % checkpoints.length],
-  }));
+  const observations: Observation[] = obsSpecs.map((o, i) => {
+    const checkpoint = checkpoints[(i * 2 + Math.floor(r() * 2)) % checkpoints.length];
+    return { ...o, checkpoint, detail: o.detail.replace("{{CP}}", checkpoint.t) };
+  });
 
   // --- strengths / priorities in the coach's voice
   const strengths: string[] = [];

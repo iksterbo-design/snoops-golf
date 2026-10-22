@@ -17,7 +17,7 @@ export function VideoWithCheckpoints({ swingId, videoName, observations }: { swi
   const seek = (t: string) => {
     const v = videoRef.current;
     if (v) { v.currentTime = toSec(t); v.play().catch(() => undefined); }
-    setActive(observations.findIndex(o => o.checkpoint.t === t));
+    setActive(Math.max(0, observations.findIndex(o => o.checkpoint.t === t)));
   };
 
   return (
@@ -34,7 +34,13 @@ export function VideoWithCheckpoints({ swingId, videoName, observations }: { swi
             <button key={i} onClick={() => seek(o.checkpoint.t)}
               className={cn("flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
                 active === i ? "border-fairway-500 bg-fairway-50" : "border-ink-100 bg-white hover:border-ink-300")}>
-              <span className="checkpoint-marker">{o.checkpoint.t}</span>
+              {o.checkpoint.frame ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={o.checkpoint.frame} alt={o.checkpoint.label} loading="lazy"
+                  className="h-10 w-16 shrink-0 rounded-md border border-ink-100 object-cover" />
+              ) : (
+                <span className="checkpoint-marker">{o.checkpoint.t}</span>
+              )}
               <span className="flex-1 truncate">{o.checkpoint.label} — {o.title}</span>
               <Badge tone={o.severity === "good" ? "green" : o.severity === "attention" ? "amber" : "red"}>
                 {o.severity === "good" ? "Working" : o.severity}

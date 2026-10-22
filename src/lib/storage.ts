@@ -57,3 +57,21 @@ export function readLocalVideo(storagePath: string): { dir: string } | null {
   const file = fs.readdirSync(dir).find(f => f.startsWith("video."));
   return file ? { dir } : null;
 }
+
+/** Absolute path of the stored video file (local driver only), or null. */
+export function localVideoFile(storagePath: string | null): string | null {
+  if (!storagePath?.startsWith("local:")) return null;
+  const rel = storagePath.slice("local:".length);
+  const swingId = rel.split("/")[1];
+  const dir = path.join(UPLOAD_DIR, swingId);
+  if (!dir.startsWith(UPLOAD_DIR) || !fs.existsSync(dir)) return null;
+  const file = fs.readdirSync(dir).find(f => f.startsWith("video."));
+  return file ? path.join(dir, file) : null;
+}
+
+/** Absolute path of a checkpoint frame extracted by the ffmpeg pipeline. */
+export function localFrameFile(swingId: string, frame: number): string | null {
+  const dir = path.join(UPLOAD_DIR, swingId, "frames");
+  const file = path.join(dir, `frame-${String(frame).padStart(2, "0")}.jpg`);
+  return fs.existsSync(file) ? file : null;
+}

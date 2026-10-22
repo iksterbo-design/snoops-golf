@@ -106,9 +106,16 @@ export default async function ReviewPage({ params }: { params: { id: string } })
         <CardBody className="space-y-3">
           {a.observations.map((o, i) => (
             <div key={i} className="flex gap-3 rounded-xl border border-ink-100 p-4">
-              <Badge tone={o.severity === "good" ? "green" : o.severity === "attention" ? "amber" : "red"} className="h-fit">
-                {o.severity === "good" ? "Working" : o.severity}
-              </Badge>
+              <div className="flex shrink-0 flex-col items-start gap-2">
+                <Badge tone={o.severity === "good" ? "green" : o.severity === "attention" ? "amber" : "red"} className="h-fit">
+                  {o.severity === "good" ? "Working" : o.severity}
+                </Badge>
+                {o.checkpoint.frame ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={o.checkpoint.frame} alt={o.checkpoint.label} loading="lazy"
+                    className="h-16 w-24 rounded-lg border border-ink-100 object-cover" />
+                ) : null}
+              </div>
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h4 className="font-semibold text-sm">{o.title}</h4>

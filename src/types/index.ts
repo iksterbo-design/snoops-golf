@@ -40,7 +40,7 @@ export interface SwingInput {
 
 export type SwingStatus = "processing" | "completed" | "failed";
 
-export interface Checkpoint { t: string; label: string; }
+export interface Checkpoint { t: string; label: string; /** Extracted JPEG of this moment (ffmpeg pipeline), if available. */ frame?: string | null; }
 
 export interface Observation {
   title: string;

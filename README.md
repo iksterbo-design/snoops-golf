@@ -52,6 +52,7 @@ demo fallback — the app never blocks on a missing key.
 | `STRIPE_SECRET_KEY` (+ publishable key) | Stripe Checkout | simulated payment record |
 | `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_BASE_URL` | LLM coach generation (any OpenAI-compatible endpoint) | structured mock engine |
 | `POSE_SERVICE_URL` | MediaPipe/MoveNet microservice endpoint | skipped |
+| `FFMPEG_PATH` / `FFPROBE_PATH` | Real duration probe + extracted checkpoint JPEGs | skipped (client-reported duration) |
 | `LLM_PROVIDER` | adapter selector (openai-compatible) | — |
 
 Never commit real credentials; `.env.local` is gitignored.
@@ -85,6 +86,7 @@ src/
     llm.ts                   OpenAI-compatible chat-completions adapter
     analysis/engine.ts       deterministic mock coach-review generator
     analysis/run.ts          pipeline: pose (optional) → LLM (optional) → mock
+    media/ffmpeg.ts          ffprobe duration + checkpoint JPEG extraction (optional)
     coaches/data.ts          the 4 coach profiles: philosophy, voice, drill libraries, prompts
   types/                     shared TypeScript models
 firestore.rules              role-based DB rules (admin = role claim/field)
@@ -96,6 +98,15 @@ a **distinct drill library**, and a **distinct system prompt** (`lib/coaches/dat
 The analysis pipeline feeds the swing context + coach prompt into the LLM when configured;
 in demo mode the mock engine selects drills **only from the selected coach's library** and
 writes the summary in that coach's voice. Same swing, four genuinely different reviews.
+
+### Media pipeline (FFmpeg)
+`src/lib/media/ffmpeg.ts` is optional tooling, not a hard dependency:
+- **Upload** probes the real container duration with `ffprobe` (falls back to the
+  client-reported duration).
+- **Analysis** extracts one JPEG per video checkpoint into
+  `uploads/<swingId>/frames/frame-NN.jpg`, served at `/api/media/<swingId>?frame=N`,
+  so the review page shows an actual frame from the golfer's own video beside each
+  checkpoint. When ffmpeg is not installed the app simply skips frames.
 
 ### Authorization
 - **Server-first**: every API route calls `requireUser()` / `requireAdmin()`; pages re-check

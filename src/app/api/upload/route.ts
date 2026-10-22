@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStore } from "@/lib/db";
-import { saveVideo } from "@/lib/storage";
+import { saveVideo, localVideoFile } from "@/lib/storage";
+import { probeDuration } from "@/lib/media/ffmpeg";
 import { requireUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -19,7 +20,9 @@ export async function POST(req: Request) {
     if (!(file instanceof File)) return NextResponse.json({ error: "No video file provided." }, { status: 400 });
 
     const { path, size } = await saveVideo(swingId, file);
-    const durationSec = Number(form.get("duration")) || estimateDuration(size);
+    // Prefer the real container duration from ffmpeg; fall back to the client value.
+    const probed = await probeDuration(localVideoFile(path) ?? "").catch(() => null);
+    const durationSec = probed ?? (Number(form.get("duration")) || estimateDuration(size));
     await store.updateSwing(swingId, { videoPath: path, videoName: file.name, durationSec });
     return NextResponse.json({ ok: true, path, size, durationSec });
   } catch (e: any) {
