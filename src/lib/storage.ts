@@ -9,6 +9,7 @@ import { env } from "./env";
  * - firebase: Firebase Storage bucket (requires env + rules)
  */
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+try { fs.mkdirSync(UPLOAD_DIR, { recursive: true }); } catch { /* ignore */ }
 
 export async function saveVideo(swingId: string, file: File): Promise<{ path: string; size: number }> {
   if (env.firebase.enabled && env.storageDriver === "firebase" && env.firebase.storageBucket) {

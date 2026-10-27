@@ -12,8 +12,8 @@ Built with **Next.js 14 (App Router) + TypeScript + Tailwind CSS**. Runs end-to-
 ## 1. Quick start (demo mode — no keys needed)
 
 ```bash
-git clone https://github.com/iksterbo-design/snoops-golf.git
-cd snoops-golf
+git clone https://github.com/iksterbo-design/ai-golf-coach.git
+cd ai-golf-coach
 npm install
 npm run setup               # cross-platform: creates .env.local (no `cp` needed)
 npm run dev
@@ -171,10 +171,15 @@ writes the summary in that coach's voice. Same swing, four genuinely different r
 ## 5. Scripts
 
 ```bash
-npm run dev        # dev server on :3000
-npm run build      # production build
-npm run start      # serve production build
-npm run typecheck  # tsc --noEmit
+npm run setup              # cross-platform .env.local bootstrap (no `cp` needed)
+npm run dev                # dev server — auto-picks a free port, prints LAN URL
+npm run build              # production build (standalone output for Docker)
+npm run start              # serve production build
+npm run typecheck          # tsc --noEmit
+npm run docker:build       # single-arch image
+npm run docker:build:ffmpeg  # + ffmpeg/ffprobe inside the image
+npm run docker:buildx      # linux/amd64 + linux/arm64
+npm run docker:run         # docker compose up --build
 ```
 
 ## 6. Demo-mode honesty

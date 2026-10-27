@@ -14,7 +14,7 @@
  *         PORT=4300 npm run dev  (start the search at 4300)
  */
 import { spawn } from "node:child_process";
-import { createServer } from "node:net";
+import { connect } from "net";
 import { existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -22,30 +22,32 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const HOST = "0.0.0.0";
-const PREFERRED = Number(process.env.PORT || 3000);
+// Dedicated port: 3000 is commonly already taken by another local tool.
+const PREFERRED = Number(process.env.PORT || 4300);
 const MAX_TRIES = 40;
 
 /**
- * True when nothing is listening on `port`.
+ * True when something is accepting connections on 127.0.0.1:port.
  *
- * Probes the loopback address, not just `0.0.0.0`. Windows lets a socket bind
- * 0.0.0.0:PORT even when 127.0.0.1:PORT is already taken, so a wildcard-only
- * check reports a busy port as free and the dev server ends up shadowed by
- * whatever already owns loopback.
+ * Connecting beats binding here. Node sets SO_REUSEADDR by default on Windows,
+ * so `server.listen()` succeeds even when the port is already live — a bind
+ * probe reports a busy port as free and the dev server ends up shadowed.
+ * Connecting from loopback works whether the listener bound 127.0.0.1 or
+ * 0.0.0.0.
  */
-function isFree(port) {
+function isBusy(port) {
   return new Promise((resolve) => {
-    const srv = createServer();
-    srv.unref();
-    srv.once("error", () => resolve(false));
-    srv.once("listening", () => srv.close(() => resolve(true)));
-    srv.listen(port, "127.0.0.1");
+    const sock = connect({ port, host: "127.0.0.1", timeout: 700 });
+    const done = (v) => { sock.destroy(); resolve(v); };
+    sock.once("connect", () => done(true));
+    sock.once("error", () => done(false));
+    sock.once("timeout", () => done(false));
   });
 }
 
 async function firstFreePort(start) {
   for (let p = start; p < start + MAX_TRIES; p++) {
-    if (await isFree(p)) return p;
+    if (!(await isBusy(p))) return p;
   }
   throw new Error(`No free port between ${start} and ${start + MAX_TRIES - 1}.`);
 }

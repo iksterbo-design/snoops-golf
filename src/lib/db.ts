@@ -50,6 +50,9 @@ interface LocalData {
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "db.json");
 
+// Ensure the data directory exists at startup so missing folders never crash.
+try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch { /* ignore */ }
+
 function loadLocal(): LocalData {
   try {
     const raw = fs.readFileSync(DATA_FILE, "utf-8");
@@ -66,10 +69,15 @@ let writeChain: Promise<void> = Promise.resolve();
 
 function saveLocal(): Promise<void> {
   writeChain = writeChain.then(() => {
-    const tmp = DATA_FILE + ".tmp";
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(tmp, JSON.stringify(localCache, null, 2));
-    fs.renameSync(tmp, DATA_FILE);
+    try {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+      const tmp = DATA_FILE + ".tmp";
+      fs.writeFileSync(tmp, JSON.stringify(localCache, null, 2));
+      fs.renameSync(tmp, DATA_FILE);
+    } catch (e) {
+      // Never crash the Node process on a failed write; log and continue.
+      console.error("[db] saveLocal failed:", e);
+    }
   });
   return writeChain;
 }

@@ -6,7 +6,7 @@ services:
         NEXT_PUBLIC_DEMO_MODE: "true"
         # set to "true" to enable ffmpeg duration probe + checkpoint frames
         INSTALL_FFMPEG: "false"
-    image: snoops-golf:latest
+    image: ai-golf-coach:latest
     container_name: ai-golf-coach
     ports:
       - "3000:3000"

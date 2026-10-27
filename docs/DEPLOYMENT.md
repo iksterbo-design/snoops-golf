@@ -54,7 +54,7 @@ npm run docker:build:ffmpeg
 
 # multi-arch image (x86_64 + arm64) — push to a registry
 docker buildx create --use
-npm run docker:buildx -- -t ghcr.io/iksterbo-design/snoops-golf:latest --push
+npm run docker:buildx -- -t ghcr.io/iksterbo-design/ai-golf-coach:latest --push
 
 # run with compose
 npm run docker:run

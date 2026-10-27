@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # ---------------------------------------------------------------------------
 # AI Golf Coach — multi-platform build (linux/amd64, linux/arm64, macOS, Windows)
-#   docker buildx build --platform linux/amd64,linux/arm64 -t snoops-golf .
+#   docker buildx build --platform linux/amd64,linux/arm64 -t ai-golf-coach .
 # ---------------------------------------------------------------------------
 FROM node:20-alpine AS deps
 WORKDIR /app

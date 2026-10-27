@@ -9,9 +9,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "setup": "node scripts/setup-env.mjs",
-    "docker:build": "docker build -t snoops-golf .",
-    "docker:build:ffmpeg": "docker build --build-arg INSTALL_FFMPEG=true -t snoops-golf .",
-    "docker:buildx": "docker buildx build --platform linux/amd64,linux/arm64 -t snoops-golf .",
+    "docker:build": "docker build -t ai-golf-coach .",
+    "docker:build:ffmpeg": "docker build --build-arg INSTALL_FFMPEG=true -t ai-golf-coach .",
+    "docker:buildx": "docker buildx build --platform linux/amd64,linux/arm64 -t ai-golf-coach .",
     "docker:run": "docker compose up --build"
   },
   "engines": {
