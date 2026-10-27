@@ -1,3 +1,5 @@
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/iksterbo-design/ai-golf-coach)
+
 # AI Golf Coach
 
 A full-stack MVP that gives golfers **coach-specific AI swing reviews**. Pick one of four
