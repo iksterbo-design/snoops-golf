@@ -11,3 +11,4 @@ uploads/*
 *.log
 coverage/
 tsconfig.tsbuildinfo
+.vercel
