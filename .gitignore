@@ -12,3 +12,5 @@ uploads/*
 coverage/
 tsconfig.tsbuildinfo
 .vercel
+adm.txt
+cj.txt
