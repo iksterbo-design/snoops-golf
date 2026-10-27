@@ -90,7 +90,9 @@ function UploadInner() {
             {busy ? "Uploading…" : "Upload & start analysis"}
           </Button>
           <p className="mt-3 text-center text-xs text-ink-500">
-            Demo mode stores the file locally and simulates pose analysis. Configure Firebase Storage + a pose service for production.
+            {process.env.NEXT_PUBLIC_DEMO_MODE !== "false"
+              ? "Demo mode stores the file locally and simulates pose analysis. Configure Firebase Storage + a pose service for production."
+              : "Your video is stored securely and analyzed by your configured coach."}
           </p>
         </CardBody>
       </Card>

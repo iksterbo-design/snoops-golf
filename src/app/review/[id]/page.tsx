@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
@@ -56,7 +57,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Badge tone="amber">Demo analysis — simulated</Badge>
+        {env.demoMode && <Badge tone="amber">Demo analysis — simulated</Badge>}
         {swing.input.issues.map(i => <Badge key={i} tone="slate">{i}</Badge>)}
       </div>
 
@@ -197,7 +198,9 @@ export default async function ReviewPage({ params }: { params: { id: string } })
         </Card>
       )}
 
-      <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">{a.disclaimer}</p>
+      {env.demoMode && (
+        <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">{a.disclaimer}</p>
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ function CheckoutInner() {
   const params = useSearchParams();
   const swingId = params.get("swing");
   const [busy, setBusy] = useState(false);
+  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
   const [error, setError] = useState<string | null>(null);
 
   const pay = async () => {
@@ -31,11 +32,11 @@ function CheckoutInner() {
   return (
     <div className="mx-auto max-w-lg px-4 py-10">
       <h1 className="text-2xl font-bold">Checkout</h1>
-      <p className="mt-1 text-sm text-ink-500">One payment unlocks this swing review. Demo mode: simulated, no card needed.</p>
+      <p className="mt-1 text-sm text-ink-500">One payment unlocks this swing review.{isDemo ? " Demo mode: simulated, no card needed." : ""}</p>
       <Card className="mt-6">
         <CardHeader className="flex items-center justify-between">
           <CardTitle>AI Swing Review</CardTitle>
-          <Badge tone="amber">Demo checkout</Badge>
+          {isDemo && <Badge tone="amber">Demo checkout</Badge>}
         </CardHeader>
         <CardBody>
           <div className="flex items-center justify-between border-b border-ink-100 pb-4">
@@ -53,11 +54,13 @@ function CheckoutInner() {
           </ul>
           {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
           <Button className="mt-6 w-full" size="lg" onClick={pay} disabled={busy}>
-            {busy ? <><Spinner className="h-4 w-4" /> Processing…</> : `Pay $${(PRICE_REVIEW_CENTS / 100).toFixed(2)} (simulated)`}
+            {busy ? <><Spinner className="h-4 w-4" /> Processing…</> : `Pay $${(PRICE_REVIEW_CENTS / 100).toFixed(2)}${isDemo ? " (simulated)" : ""}`}
           </Button>
-          <p className="mt-3 text-center text-xs text-ink-500">
-            In demo mode no real charge occurs. Configure Stripe keys to enable live checkout.
-          </p>
+          {isDemo && (
+            <p className="mt-3 text-center text-xs text-ink-500">
+              In demo mode no real charge occurs. Configure Stripe keys to enable live checkout.
+            </p>
+          )}
         </CardBody>
       </Card>
     </div>

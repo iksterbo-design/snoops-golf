@@ -17,9 +17,11 @@ function start() {
   console.log(`[prod] starting next start on ${HOST}:${PORT}`);
   const child = spawn(process.execPath, [nextBin, "start", "-H", HOST, "-p", String(PORT)], {
     cwd: root,
-    stdio: "inherit",
+    stdio: ["ignore", "pipe", "pipe"],
     env: { ...process.env, PORT: String(PORT), NODE_ENV: "production" },
   });
+  child.stdout.on("data", d => process.stdout.write(d));
+  child.stderr.on("data", d => process.stderr.write(d));
   child.on("exit", (code, signal) => {
     console.log(`[prod] exited code=${code} signal=${signal}; restarting in 2s...`);
     setTimeout(start, 2000);

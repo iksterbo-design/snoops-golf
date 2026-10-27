@@ -30,7 +30,10 @@ export default function SignupPage() {
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
       <h1 className="text-2xl font-bold">Create your account</h1>
-      <p className="mt-1 text-sm text-ink-500">Free to start. Reviews are $19 each (simulated in demo mode).</p>
+      <p className="mt-1 text-sm text-ink-500">
+        Free to start. Reviews are $19 each
+        {process.env.NEXT_PUBLIC_DEMO_MODE !== "false" ? " (simulated in demo mode)." : "."}
+      </p>
       <form onSubmit={submit} className="mt-6 space-y-4 rounded-2xl border border-ink-100 bg-white p-6 shadow-card">
         <div>
           <Label htmlFor="name">Name</Label>

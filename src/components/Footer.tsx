@@ -6,7 +6,11 @@ export function Footer() {
           <span className="flex h-6 w-6 items-center justify-center rounded bg-fairway-600 text-white text-xs">A</span>
           AI Golf Coach
         </div>
-        <p>Demo build — simulated analysis, payments, and storage unless configured.</p>
+        <p>
+          {process.env.NEXT_PUBLIC_DEMO_MODE !== "false"
+            ? "Demo build — simulated analysis, payments, and storage unless configured."
+            : "AI Golf Coach — live coaching platform."}
+        </p>
       </div>
     </footer>
   );
