@@ -10,6 +10,8 @@ const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/menu", label: "Menu" },
   { href: "/coaches", label: "Coaches" },
+  { href: "/tools", label: "Tools" },
+  { href: "/accountnet", label: "Account Net" },
   { href: "/history", label: "History" },
   { href: "/profile", label: "Profile" },
 ];
