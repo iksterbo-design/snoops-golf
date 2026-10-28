@@ -1,5 +1,8 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/iksterbo-design/ai-golf-coach)
 
+> 🚀 **Live Preview (demo mode, no signup friction):** https://opinions-publicly-improvements-feels.trycloudflare.com
+> _Permanent URL: click the Vercel button above — deploys in ~2 minutes, free tier._
+
 # AI Golf Coach
 
 A full-stack MVP that gives golfers **coach-specific AI swing reviews**. Pick one of four
@@ -8,6 +11,16 @@ checkpoints, that coach's drills, and a 7-day practice plan — then track progr
 
 Built with **Next.js 14 (App Router) + TypeScript + Tailwind CSS**. Runs end-to-end with
 **zero external services** in demo mode; every external service is optional and hot-swappable.
+
+---
+
+## Case Study: AI Golf Coach (Product)
+
+**The Problem.** Amateur golfers get generic tips from YouTube and apps that don't know their swing, their coach's philosophy, or their history. Human coaches are expensive and scheduling-bound. The gap: affordable, personalized, coach-voiced feedback on demand.
+
+**Brand / Product Identity.** Four distinct coaching personalities (Michael Schrempf, Matt Wastyn, John Schrempf, Chris Thompson), each with its own positioning, lesson style, communication traits, **drill library**, and **system prompt**. Same swing → four genuinely different reviews. Palette: emerald/teal accent on dark slate (Tailwind `emerald-400` / `slate-900`), large touch targets, mobile-first cards. Typography: Inter (UI) + monospace for metric readouts.
+
+**UI/UX Optimization.** Mobile-first Tailwind, 44px+ touch targets, zero layout shift (skeletons), sub-second first paint via Next.js 14 RSC + standalone output. Demo mode ships with zero keys so evaluators see the full journey instantly; every external service (OpenAI, Stripe, Firebase, pose, ffmpeg) is optional and hot-swappable with graceful fallbacks. Authorization is server-first (`requireUser`/`requireAdmin`), never hidden nav.
 
 ---
 
